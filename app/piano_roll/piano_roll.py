@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from PySide6.QtCore import QEvent, QSize
 
+from app import settings
 from app.piano_roll.notes_area import NotesArea
 from app.piano_roll.piano_bar import PianoBar
 from app.piano_roll.time_bar import TimeBar
@@ -10,22 +11,15 @@ class PianoRoll(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.settings = {
-            "time_bar_height": 50,
-            "piano_bar_width": 50,
-            "content_size": QSize(2000, 2000),
-            "beat_width": 30,
-            "key_height": 20,
-            "colors": {"bg_black_key": "#212121", "bg_white_key": "#313131"},
-        }
+        # Initializes the different areas of the piano roll
+        self.time_bar = TimeBar()
+        self.piano_bar = PianoBar()
+        self.notes_area = NotesArea()
 
-        self.time_bar = TimeBar(self)
-        self.piano_bar = PianoBar(self)
-        self.notes_area = NotesArea(self)
+        # Spacer for the top left corner
         self.corner = QWidget()
-
         self.corner.setFixedSize(
-            QSize(self.settings["piano_bar_width"], self.settings["time_bar_height"])
+            QSize(settings.piano_bar_width, settings.time_bar_height)
         )
 
         self._setup_layout()
@@ -60,8 +54,8 @@ class PianoRoll(QWidget):
         sb_h = self.notes_area.scroll_area.horizontalScrollBar()
         sb_v = self.notes_area.scroll_area.verticalScrollBar()
 
-        sb_h.valueChanged.connect(self.time_bar.set_scroll_x)
-        sb_v.valueChanged.connect(self.piano_bar.set_scroll_y)
+        sb_h.sliderMoved.connect(self.time_bar.set_scroll_x)
+        sb_v.sliderMoved.connect(self.piano_bar.set_scroll_y)
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.Type.Wheel:
