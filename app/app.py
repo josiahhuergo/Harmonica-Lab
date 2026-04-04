@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QMainWindow
 
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 
 from app.piano_roll.piano_roll import PianoRoll
 
@@ -12,3 +12,9 @@ class HarmonicaLab(QMainWindow):
         self.setCentralWidget(self.piano_roll)
         self.setWindowTitle("HarmonicaLab")
         self.setFixedSize(QSize(1280, 720))
+
+    def keyPressEvent(self, event):
+        # Close app if ESC is pressed
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+        super().keyPressEvent(event)
