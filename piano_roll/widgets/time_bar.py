@@ -2,45 +2,50 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QHBoxLayout, QScrollArea, QSizePolicy, QWidget
 
-from app import settings
-
-colors = settings.colors
+from app.store import *
+from piano_roll.colors import Colors
+from piano_roll.state import piano_roll_state as state
 
 
 class TimeBarContent(QWidget):
     def __init__(self):
         super().__init__()
         self.setFixedSize(
-            settings.content_size.width(),
-            settings.time_bar_height,
+            state.content_size.width(),
+            state.time_bar_height,
         )
 
     def paintEvent(self, event):
-        painter = QPainter(self)
-        beat_width = settings.beat_width
+        """Paints the labels and lines for the time bar."""
 
-        for i in range(self.width() // beat_width):
-            pos = i * beat_width
+        painter = QPainter(self)
+
+        painter.setBrush(Colors.BG_BLACK)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawRect(0, 0, self.width(), self.height())
+
+        for i in range(self.width() // state.beat_width):
+            pos = i * state.beat_width
 
             # Draw lines
-            painter.setPen(colors.bg_black_key)
+            painter.setPen(Colors.BG_WHITE)
             painter.drawLine(
                 pos,
-                self.height() / 2,
+                self.height() * (2 / 5),
                 pos,
                 self.height(),
             )
 
             # Draw numbers
-            painter.setPen(colors.fg_white_key)
-            painter.drawText(pos + (beat_width / 4), self.height() - 5, str(i + 1))
+            painter.setPen(Colors.FG_WHITE)
+            painter.drawText(pos + 6, self.height() - 5, str(i))
 
 
 class TimeBar(QWidget):
     def __init__(self):
         super().__init__()
         self._setup_scroll()
-        self.setFixedHeight(settings.time_bar_height)
+        self.setFixedHeight(state.time_bar_height)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
     def set_scroll_x(self, scroll_x):

@@ -1,41 +1,55 @@
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QPainter
+from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QHBoxLayout, QScrollArea, QSizePolicy, QWidget
 
-from app import settings
-
-colors = settings.colors
+from app.store import *
+from piano_roll.colors import Colors
+from piano_roll.constants import black_keys
+from piano_roll.helpers import pitch_to_y
+from piano_roll.state import piano_roll_state as state
 
 
 class PianoBarContent(QWidget):
+    """The inner piano bar area that gets scrolled around."""
+
     def __init__(self):
         super().__init__()
+
         self.setFixedSize(
-            settings.piano_bar_width,
-            settings.content_size.height(),
+            state.piano_bar_width,
+            state.content_size.height(),
         )
 
     def paintEvent(self, event):
-        painter = QPainter(self)
-        key_height = settings.key_height
-        black_keys = settings.black_keys
+        """Paints the piano keys on the left of the piano roll."""
 
-        for i in range(self.height() // key_height):
-            if i % 12 in black_keys:
-                painter.setBrush(colors.fg_black_key)
+        painter = QPainter(self)
+
+        for p in range(state.max_pitch, state.min_pitch - 1, -1):
+            y = pitch_to_y(p)
+
+            if p % 12 in black_keys:
+                painter.setBrush(Colors.FG_BLACK)
             else:
-                painter.setBrush(colors.fg_white_key)
-            pos = i * key_height
+                painter.setBrush(Colors.FG_WHITE)
+
             painter.setPen(Qt.PenStyle.NoPen)
-            painter.drawRect(0, pos, self.width(), key_height)
+            painter.drawRect(0, y, self.width(), state.key_height)
+
+            if p % 12 in [4, 11]:
+                painter.setPen(Colors.BG_BLACK)
+                painter.drawLine(0, y, self.width(), y)
+                painter.setPen(Qt.PenStyle.NoPen)
 
 
 class PianoBar(QWidget):
+    """The frame that the scrollable piano bar sits in."""
+
     def __init__(self):
         super().__init__()
         self._setup_scroll()
 
-        self.setFixedWidth(settings.piano_bar_width)
+        self.setFixedWidth(state.piano_bar_width)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
 
     def set_scroll_y(self, scroll_y):

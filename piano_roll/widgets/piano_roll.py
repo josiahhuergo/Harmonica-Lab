@@ -1,10 +1,25 @@
+from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
-from PySide6.QtCore import QEvent, QSize
+from PySide6.QtCore import QEvent, QSize, Qt
 
-from app import settings
-from app.piano_roll.notes_area import NotesArea
-from app.piano_roll.piano_bar import PianoBar
-from app.piano_roll.time_bar import TimeBar
+from piano_roll.colors import Colors
+from piano_roll.state import piano_roll_state as state
+from piano_roll.widgets.notes_area import NotesArea
+from piano_roll.widgets.piano_bar import PianoBar
+from piano_roll.widgets.time_bar import TimeBar
+
+
+class Corner(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(QSize(state.piano_bar_width, state.time_bar_height))
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+
+        painter.setBrush(Colors.BG_BLACK)
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawRect(0, 0, self.width(), self.height())
 
 
 class PianoRoll(QWidget):
@@ -15,12 +30,7 @@ class PianoRoll(QWidget):
         self.time_bar = TimeBar()
         self.piano_bar = PianoBar()
         self.notes_area = NotesArea()
-
-        # Spacer for the top left corner
-        self.corner = QWidget()
-        self.corner.setFixedSize(
-            QSize(settings.piano_bar_width, settings.time_bar_height)
-        )
+        self.corner = Corner()
 
         self._setup_layout()
         self._setup_sync()
