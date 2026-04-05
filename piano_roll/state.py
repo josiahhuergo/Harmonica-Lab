@@ -17,7 +17,7 @@ class PianoRollState(QObject):
         return int(50 * self.zoom_x)
 
     @property
-    def key_height(self) -> int:  # PianoRollViewState
+    def key_height(self) -> int:
         return int(20 * self.zoom_y)
 
     @property
