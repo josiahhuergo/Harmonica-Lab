@@ -1,13 +1,47 @@
 from copy import deepcopy
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHBoxLayout, QScrollArea, QSizePolicy, QWidget
-from PySide6.QtGui import QPainter
+from PySide6.QtCore import QPoint, Qt
+from PySide6.QtOpenGLWidgets import QOpenGLWidget
+from PySide6.QtWidgets import (
+    QAbstractScrollArea,
+    QHBoxLayout,
+    QScrollArea,
+    QSizePolicy,
+    QWidget,
+)
+from PySide6.QtGui import QPainter, QResizeEvent
 
 from piano_roll.colors import Colors
+from piano_roll.events import piano_roll_events as events
 from piano_roll.constants import black_keys
-from piano_roll.helpers import pitch_to_y
+from piano_roll.helper import pitch_to_y
 from piano_roll.state import piano_roll_state as state
+
+
+class NotesViewport(QOpenGLWidget):
+    pass
+
+
+class NotesScrollArea(QAbstractScrollArea):
+    def __init__(self):
+        super().__init__()
+
+        self._viewport = NotesViewport()
+        self.setViewport(self._viewport)
+
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        events.scrolled.connect(self.scroll)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setFrameShape(QScrollArea.Shape.NoFrame)
+
+    def scroll(self, scroll_value: QPoint):
+        self.horizontalScrollBar().setValue(scroll_value.x())
+        self.verticalScrollBar().setValue(scroll_value.y())
+
+    def resizeEvent(self, event: QResizeEvent):
+        super().resizeEvent(event)
+        events.resized.emit(event.size())
 
 
 class NotesAreaContent(QWidget):
@@ -56,6 +90,7 @@ class NotesArea(QWidget):
 
     def __init__(self):
         super().__init__()
+        events.scrolled.connect(self.scroll)
         self._setup_scroll()
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
@@ -73,3 +108,13 @@ class NotesArea(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         self.setLayout(layout)
+
+    def scroll(self, scroll_value: QPoint):
+        sb_h = self.scroll_area.horizontalScrollBar()
+        sb_v = self.scroll_area.verticalScrollBar()
+
+        sb_h.setValue(scroll_value.x())
+        sb_v.setValue(scroll_value.y())
+
+    def resizeEvent(self, event: QResizeEvent):
+        events.resized.emit(event.size())

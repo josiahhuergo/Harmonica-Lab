@@ -1,11 +1,12 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QHBoxLayout, QScrollArea, QSizePolicy, QWidget
 
-from app.store import *
+from app.state import *
 from piano_roll.colors import Colors
+from piano_roll.events import piano_roll_events as events
 from piano_roll.constants import black_keys
-from piano_roll.helpers import pitch_to_y
+from piano_roll.helper import pitch_to_y
 from piano_roll.state import piano_roll_state as state
 
 
@@ -48,12 +49,15 @@ class PianoBar(QWidget):
     def __init__(self):
         super().__init__()
         self._setup_scroll()
-
+        events.scrolled.connect(self._scroll)
         self.setFixedWidth(state.piano_bar_width)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
 
     def set_scroll_y(self, scroll_y):
         self.scroll_area.verticalScrollBar().setValue(scroll_y)
+
+    def _scroll(self, scroll_value: QPoint):
+        self.set_scroll_y(scroll_value.y())
 
     def _setup_scroll(self):
         scroll_area = QScrollArea()

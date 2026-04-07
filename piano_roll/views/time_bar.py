@@ -1,13 +1,16 @@
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QHBoxLayout, QScrollArea, QSizePolicy, QWidget
 
-from app.store import *
+from app.state import *
+from piano_roll.events import piano_roll_events as events
 from piano_roll.colors import Colors
 from piano_roll.state import piano_roll_state as state
 
 
 class TimeBarContent(QWidget):
+    """The inner time bar area that gets scrolled around."""
+
     def __init__(self):
         super().__init__()
         self.setFixedSize(
@@ -42,14 +45,20 @@ class TimeBarContent(QWidget):
 
 
 class TimeBar(QWidget):
+    """The scrollable frame that the time bar content sits in."""
+
     def __init__(self):
         super().__init__()
         self._setup_scroll()
+        events.scrolled.connect(self._scroll)
         self.setFixedHeight(state.time_bar_height)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
     def set_scroll_x(self, scroll_x):
         self.scroll_area.horizontalScrollBar().setValue(scroll_x)
+
+    def _scroll(self, scroll_value: QPoint):
+        self.set_scroll_x(scroll_value.x())
 
     def _setup_scroll(self):
         scroll_area = QScrollArea()
