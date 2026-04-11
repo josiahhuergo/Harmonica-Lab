@@ -2,13 +2,13 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-from app.app import HarmonicaLab
+from piano_roll.piano_roll import PianoRoll
 
 
 def main():
     app = QApplication(sys.argv)
-    lab = HarmonicaLab()
-    lab.show()
+    piano_roll = PianoRoll()
+    piano_roll.view.show()
     app.exec()
 
 

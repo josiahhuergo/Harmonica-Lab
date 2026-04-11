@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, QPoint, QSize, Signal
+from PySide6.QtCore import QObject, QPoint, QSize
 
 from helper import clamp
 from piano_roll.events import piano_roll_events as events
@@ -56,6 +56,22 @@ class PianoRollState(QObject):
         self.scroll_y = clamp(self.scroll_y - dy, 0, self.max_scroll_y)
 
         events.scrolled.emit(QPoint(self.scroll_x, self.scroll_y))
+
+    def zoom_in_x(self):
+        self.zoom_x *= 2.0
+        events.zoomed_x.emit(self.zoom_x)
+
+    def zoom_out_x(self):
+        self.zoom_x /= 2.0
+        events.zoomed_x.emit(self.zoom_x)
+
+    def zoom_in_y(self):
+        self.zoom_y *= 2.0
+        events.zoomed_y.emit(self.zoom_y)
+
+    def zoom_out_y(self):
+        self.zoom_y /= 2.0
+        events.zoomed_y.emit(self.zoom_y)
 
 
 piano_roll_state = PianoRollState()

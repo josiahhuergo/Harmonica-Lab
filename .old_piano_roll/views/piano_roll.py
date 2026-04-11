@@ -1,13 +1,13 @@
-from PySide6.QtGui import QPainter, QResizeEvent
+from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
-from PySide6.QtCore import QEvent, QSize, Qt, Signal
+from PySide6.QtCore import QEvent, QSize, Qt
 
 from piano_roll.colors import Colors
 from piano_roll.events import piano_roll_events as events
 from piano_roll.state import piano_roll_state as state
-from piano_roll.widgets.notes_area import NotesArea
-from piano_roll.widgets.piano_bar import PianoBar
-from piano_roll.widgets.time_bar import TimeBar
+from piano_roll.views.notes_area import NotesArea
+from piano_roll.views.piano_bar import PianoBar
+from piano_roll.views.time_bar import TimeBar
 
 
 class Corner(QWidget):
