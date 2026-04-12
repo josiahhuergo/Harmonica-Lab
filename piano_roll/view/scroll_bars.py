@@ -12,13 +12,18 @@ class ScrollBarX(QScrollBar):
 
         self.viewport = viewport
 
-        self.setRange(0, viewport.max_scroll_x)
         self.setFixedHeight(scroll_bar_thickness)
 
+        self.valueChanged.connect(viewport.set_scroll_x)
         viewport.scrolled.connect(self.update_scroll)
+        viewport.resized.connect(self.update_size)
 
     def update_scroll(self):
         self.setValue(self.viewport.scroll_x)
+
+    def update_size(self):
+        self.setRange(0, self.viewport.max_scroll_x)
+        self.setFixedWidth(self.viewport.viewport_width)
 
 
 class ScrollBarY(QScrollBar):
@@ -27,10 +32,15 @@ class ScrollBarY(QScrollBar):
 
         self.viewport = viewport
 
-        self.setRange(0, viewport.max_scroll_y)
         self.setFixedWidth(scroll_bar_thickness)
 
+        self.valueChanged.connect(viewport.set_scroll_y)
         viewport.scrolled.connect(self.update_scroll)
+        viewport.resized.connect(self.update_size)
 
     def update_scroll(self):
         self.setValue(self.viewport.scroll_y)
+
+    def update_size(self):
+        self.setRange(0, self.viewport.max_scroll_y)
+        self.setFixedHeight(self.viewport.viewport_height)

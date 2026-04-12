@@ -14,6 +14,7 @@ def main():
     app.installEventFilter(esc_filter)
 
     piano_roll = PianoRoll()
+    piano_roll.view.setWindowTitle("Harmonica Lab")
     piano_roll.show()
     app.exec()
 

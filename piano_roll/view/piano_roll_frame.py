@@ -61,12 +61,14 @@ class PianoRollFrame(QWidget):
         inner_area.addLayout(top_bar)
         inner_area.addLayout(bottom_bar)
         inner_area.addWidget(self.scroll_bar_x)
+        self.scroll_bar_x.setContentsMargins(piano_bar_width, 0, 0, 0)
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addLayout(inner_area)
         layout.addWidget(self.scroll_bar_y)
+        self.scroll_bar_y.setContentsMargins(0, time_bar_height, 0, 0)
 
         self.setLayout(layout)
 
@@ -80,8 +82,15 @@ class PianoRollFrame(QWidget):
         zoom_out_shortcut.activated.connect(self.viewport.zoom_out_x)
 
     def wheelEvent(self, event: QWheelEvent):
-        dx = event.angleDelta().x()
-        dy = event.angleDelta().y()
+        pixel = event.pixelDelta()
+        angle = event.angleDelta()
+
+        if not pixel.isNull():
+            dx = pixel.x()
+            dy = pixel.y()
+        else:
+            dx = angle.x() // 8
+            dy = angle.y() // 8
 
         self.viewport.adjust_scroll_x(dx)
         self.viewport.adjust_scroll_y(dy)

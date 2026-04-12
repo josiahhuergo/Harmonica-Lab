@@ -19,13 +19,14 @@ class PianoRollViewport(QObject):
     _ZOOM_X_MAX = 4.0
     _ZOOM_Y_MIN = 0.25
     _ZOOM_Y_MAX = 2.0
+    _SCROLL_SPEED = 0.8
 
     def __init__(self, vm: PianoRollViewModel):
         super().__init__()
         self.vm = vm  # Only for reading
 
-        self.scroll_x: int = 0  # Scroll position (in pixels)
-        self.scroll_y: int = 0
+        self.scroll_x: float = 0  # Scroll position (in pixels)
+        self.scroll_y: float = 0
         self.zoom_x: float = 1.0  # Zoom multipliers
         self.zoom_y: float = 1.0
         self.viewport_size: tuple[int, int] = (360, 240)
@@ -81,10 +82,10 @@ class PianoRollViewport(QObject):
         self.scrolled.emit()
 
     def adjust_scroll_x(self, delta: int):
-        self.set_scroll_x(self.scroll_x - delta)
+        self.set_scroll_x(self.scroll_x - (delta * self._SCROLL_SPEED))
 
     def adjust_scroll_y(self, delta: int):
-        self.set_scroll_y(self.scroll_y - delta)
+        self.set_scroll_y(self.scroll_y - (delta * self._SCROLL_SPEED))
 
     def zoom_in_x(self):
         self.set_zoom_x(self.zoom_x * self._ZOOM_FACTOR)
