@@ -1,4 +1,4 @@
-from PySide6.QtGui import QPainter
+from PySide6.QtGui import QPainter, QWheelEvent
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 from PySide6.QtCore import QEvent, QSize, Qt
 
@@ -81,6 +81,6 @@ class PianoRoll(QWidget):
             return True  # stop the event from being handled by the child
         return super().eventFilter(obj, event)
 
-    def wheelEvent(self, event):
+    def wheelEvent(self, event: QWheelEvent):
         state.scroll((event.angleDelta().x(), event.angleDelta().y()))
         event.accept()

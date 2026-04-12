@@ -1,5 +1,5 @@
-from piano_roll.views.piano_roll_frame import PianoRollFrame
-from piano_roll.views.viewmodel import PianoRollViewModel
+from piano_roll.view.piano_roll_frame import PianoRollFrame
+from piano_roll.view.viewmodel import PianoRollViewModel
 
 
 class PianoRoll:
