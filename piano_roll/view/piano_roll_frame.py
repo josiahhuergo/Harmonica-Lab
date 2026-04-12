@@ -1,11 +1,12 @@
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeySequence, QPainter, QResizeEvent, QShortcut, QWheelEvent
+from PySide6.QtGui import QKeySequence, QPainter, QShortcut, QWheelEvent
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 from piano_roll.colors import Colors
 from piano_roll.constants import piano_bar_width, time_bar_height
 from piano_roll.view.notes import NotesView
 from piano_roll.view.piano_bar import PianoBar
+from piano_roll.view.scroll_bars import ScrollBarX, ScrollBarY
 from piano_roll.view.time_bar import TimeBar
 from piano_roll.view.viewmodel import PianoRollViewModel
 from piano_roll.view.viewport import PianoRollViewport
@@ -33,6 +34,8 @@ class PianoRollFrame(QWidget):
         self.time_bar = TimeBar(vm, self.viewport)
         self.piano_bar = PianoBar(vm, self.viewport)
         self.notes_area = NotesView(vm, self.viewport)
+        self.scroll_bar_x = ScrollBarX(vm, self.viewport)
+        self.scroll_bar_y = ScrollBarY(vm, self.viewport)
 
         self._init_layout()
         self._setup_shortcuts()
@@ -52,11 +55,18 @@ class PianoRollFrame(QWidget):
         bottom_bar.addWidget(self.piano_bar)
         bottom_bar.addWidget(self.notes_area)
 
-        layout = QVBoxLayout()
+        inner_area = QVBoxLayout()
+        inner_area.setContentsMargins(0, 0, 0, 0)
+        inner_area.setSpacing(0)
+        inner_area.addLayout(top_bar)
+        inner_area.addLayout(bottom_bar)
+        inner_area.addWidget(self.scroll_bar_x)
+
+        layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        layout.addLayout(top_bar)
-        layout.addLayout(bottom_bar)
+        layout.addLayout(inner_area)
+        layout.addWidget(self.scroll_bar_y)
 
         self.setLayout(layout)
 
@@ -70,4 +80,8 @@ class PianoRollFrame(QWidget):
         zoom_out_shortcut.activated.connect(self.viewport.zoom_out_x)
 
     def wheelEvent(self, event: QWheelEvent):
-        self.viewport.scroll((event.angleDelta().x(), event.angleDelta().y()))
+        dx = event.angleDelta().x()
+        dy = event.angleDelta().y()
+
+        self.viewport.adjust_scroll_x(dx)
+        self.viewport.adjust_scroll_y(dy)

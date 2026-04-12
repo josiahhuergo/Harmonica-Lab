@@ -19,8 +19,8 @@ class TimeBar(QWidget):
         self.setFixedHeight(time_bar_height)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
-        self.viewport.scroll_changed.connect(self.update)
-        self.viewport.zoom_changed.connect(self.update)
+        self.viewport.scrolled.connect(self.update)
+        self.viewport.zoomed.connect(self.update)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -30,12 +30,12 @@ class TimeBar(QWidget):
         painter.drawRect(0, 0, self.width(), self.height())
 
         beat_width = self.viewport.beat_width
-        scroll_x = self.viewport.scroll_pos[0]
+        scroll_x = self.viewport.scroll_x
         scroll_x_in_beats = scroll_x / beat_width
-        vp_width = self.viewport.viewport_size[0]
+        vp_width = self.viewport.viewport_width
         width = vp_width / beat_width
 
-        start_beat = ceil(scroll_x_in_beats)
+        start_beat = ceil(scroll_x_in_beats) - 1
         stop_beat = ceil(scroll_x_in_beats + width)
 
         # Set font size

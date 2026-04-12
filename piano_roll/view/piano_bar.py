@@ -19,16 +19,16 @@ class PianoBar(QWidget):
         self.setFixedWidth(piano_bar_width)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
 
-        self.viewport.scroll_changed.connect(self.update)
-        self.viewport.zoom_changed.connect(self.update)
+        self.viewport.scrolled.connect(self.update)
+        self.viewport.zoomed.connect(self.update)
 
     def paintEvent(self, event):
         painter = QPainter(self)
 
         # Some variables
-        scroll_y = self.viewport.scroll_pos[1]
+        scroll_y = self.viewport.scroll_y
         key_height = self.viewport.key_height
-        vp_height = self.viewport.viewport_size[1]
+        vp_height = self.viewport.viewport_height
         max_pitch = self.vm.max_pitch
 
         start_i = floor(scroll_y / key_height)

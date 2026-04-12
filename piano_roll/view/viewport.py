@@ -5,12 +5,12 @@ from piano_roll.view.viewmodel import PianoRollViewModel
 
 
 class PianoRollViewport(QObject):
-    """State and behavior specific to the viewport,
-    such as scrolling and zooming."""
+    """State and behavior specific to the viewport, such as scrolling
+    and zooming."""
 
-    scroll_changed = Signal()
-    zoom_changed = Signal()
-    viewport_size_changed = Signal()
+    scrolled = Signal()
+    zoomed = Signal()
+    resized = Signal()
 
     _DEFAULT_BEAT_WIDTH = 40
     _DEFAULT_KEY_HEIGHT = 15
@@ -24,20 +24,27 @@ class PianoRollViewport(QObject):
         super().__init__()
         self.vm = vm  # Only for reading
 
-        self.scroll_pos: tuple[int, int] = (
-            0,
-            0,
-        )  # Scroll position in pixels
+        self.scroll_x: int = 0  # Scroll position (in pixels)
+        self.scroll_y: int = 0
         self.zoom_x: float = 1.0  # Zoom multipliers
         self.zoom_y: float = 1.0
         self.viewport_size: tuple[int, int] = (360, 240)
 
     @property
-    def content_size(self) -> tuple[int, int]:
-        content_width = 2500
-        content_height = int(self.vm.key_count * self.key_height)
+    def content_width(self) -> int:
+        return 2500
 
-        return (content_width, content_height)
+    @property
+    def content_height(self) -> int:
+        return int(self.vm.key_count * self.key_height)
+
+    @property
+    def viewport_width(self) -> int:
+        return self.viewport_size[0]
+
+    @property
+    def viewport_height(self) -> int:
+        return self.viewport_size[1]
 
     @property
     def beat_width(self) -> float:
@@ -48,28 +55,36 @@ class PianoRollViewport(QObject):
         return self._DEFAULT_KEY_HEIGHT * self.zoom_y
 
     @property
-    def max_scroll(self) -> tuple[int, int]:
-        max_scroll_x = self.content_size[0] - self.viewport_size[0]
-        max_scroll_y = self.content_size[1] - self.viewport_size[1]
+    def max_scroll_x(self) -> int:
+        return self.content_width - self.viewport_width
 
-        return (max_scroll_x, max_scroll_y)
+    @property
+    def max_scroll_y(self) -> int:
+        return self.content_height - self.viewport_height
+
+    def set_viewport_width(self, new_width: int):
+        self.viewport_width = new_width
+        self.resized
 
     def set_viewport_size(self, new_size: tuple[float, float]):
         self.viewport_size = new_size
-        self.viewport_size_changed.emit()
+        self.resized.emit()
 
-    def scroll(self, delta: tuple[int, int]):
-        scroll_x, scroll_y = self.scroll_pos
-        delta_x, delta_y = delta
-        max_scroll_x, max_scroll_y = self.max_scroll
+    def set_scroll_x(self, new_scroll_x: int):
+        new_scroll_x = clamp(new_scroll_x, 0, self.max_scroll_x)
+        self.scroll_x = new_scroll_x
+        self.scrolled.emit()
 
-        new_scroll_pos = (
-            clamp(scroll_x - delta_x, 0, max_scroll_x),
-            clamp(scroll_y - delta_y, 0, max_scroll_y),
-        )
+    def set_scroll_y(self, new_scroll_y: int):
+        new_scroll_y = clamp(new_scroll_y, 0, self.max_scroll_y)
+        self.scroll_y = new_scroll_y
+        self.scrolled.emit()
 
-        self.scroll_pos = new_scroll_pos
-        self.scroll_changed.emit()
+    def adjust_scroll_x(self, delta: int):
+        self.set_scroll_x(self.scroll_x - delta)
+
+    def adjust_scroll_y(self, delta: int):
+        self.set_scroll_y(self.scroll_y - delta)
 
     def zoom_in_x(self):
         self.set_zoom_x(self.zoom_x * self._ZOOM_FACTOR)
@@ -84,26 +99,23 @@ class PianoRollViewport(QObject):
         self.set_zoom_y(self.zoom_y / self._ZOOM_FACTOR)
 
     def set_zoom_x(self, new_zoom_x: float):
-        """Clamps x zoom value before setting."""
         self.zoom_x = clamp(new_zoom_x, self._ZOOM_X_MIN, self._ZOOM_X_MAX)
-        self.zoom_changed.emit()
-        print("ZOOM X EMITTED!")
+        self.zoomed.emit()
 
     def set_zoom_y(self, new_zoom_y: float):
-        """Clamps y zoom value before setting."""
         self.zoom_y = clamp(new_zoom_y, self._ZOOM_Y_MIN, self._ZOOM_Y_MAX)
-        self.zoom_changed.emit()
+        self.zoomed.emit()
 
     def _pitch_to_y(self, pitch: int) -> int:
         """Takes a pitch integer and returns the y position of the
         top of the corresponding key lane in the piano roll."""
 
-        return int((self.vm.max_pitch - pitch) * self.key_height)
+        return int((self.vm.max_pitch - pitch) * self.key_height) - self.scroll_y
 
     def _time_to_x(self, beat: float) -> int:
         """Takes a point in time and translates it into a pixel position."""
 
-        return int(self.beat_width * beat)
+        return int(self.beat_width * beat) - self.scroll_x
 
     def _y_to_pitch(self, y: int) -> int:
         """Takes a y position in pixels and returns the pitch of the key
