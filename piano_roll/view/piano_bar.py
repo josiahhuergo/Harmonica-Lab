@@ -1,6 +1,6 @@
 from math import ceil, floor
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
@@ -34,7 +34,14 @@ class PianoBar(QWidget):
         start_i = floor(scroll_y / key_height)
         stop_i = ceil((scroll_y + vp_height) / key_height)
 
-        for i in range(start_i, stop_i):
+        x = piano_bar_width / 2
+
+        # Set font size
+        font = painter.font()
+        font.setPointSize(8)
+        painter.setFont(font)
+
+        for i in range(start_i, stop_i + 1):
             pitch = max_pitch - i
             y = key_height * i - scroll_y
 
@@ -44,9 +51,18 @@ class PianoBar(QWidget):
                 painter.setBrush(Colors.FG_WHITE)
 
             painter.setPen(Qt.PenStyle.NoPen)
-            painter.drawRect(0, y, piano_bar_width, key_height)
+            painter.drawRect(x, y, piano_bar_width, key_height)
 
             if pitch % 12 in [4, 11]:
                 painter.setPen(Colors.BG_BLACK)
-                painter.drawLine(0, y, self.width(), y)
+                painter.drawLine(x, y, self.width(), y)
+                painter.setPen(Qt.PenStyle.NoPen)
+
+            if pitch % 12 == 11:
+                rect = QRect(0, y - key_height, x, key_height)
+                octave = (pitch + 1) // 12 - 1
+                painter.setPen(Colors.BG_WHITE)
+                painter.drawLine(x / 2, y, x, y)
+                painter.setPen(Colors.FG_WHITE)
+                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, "C" + str(octave))
                 painter.setPen(Qt.PenStyle.NoPen)

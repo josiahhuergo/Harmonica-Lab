@@ -8,7 +8,7 @@ from piano_roll.view.viewport import PianoRollViewport
 
 
 class ScrollBarX(QScrollBar):
-    def __init__(self, vm: PianoRollViewModel, viewport: PianoRollViewport):
+    def __init__(self, viewport: PianoRollViewport):
         super().__init__(Qt.Orientation.Horizontal)
 
         self.viewport = viewport
@@ -28,7 +28,7 @@ class ScrollBarX(QScrollBar):
 
 
 class ScrollBarY(QScrollBar):
-    def __init__(self, vm: PianoRollViewModel, viewport: PianoRollViewport):
+    def __init__(self, viewport: PianoRollViewport):
         super().__init__(Qt.Orientation.Vertical)
 
         self.viewport = viewport

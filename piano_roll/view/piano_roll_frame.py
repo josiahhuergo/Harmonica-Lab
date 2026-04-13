@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeySequence, QPainter, QShortcut, QWheelEvent
+from PySide6.QtGui import QKeySequence, QPainter, QShortcut, QShowEvent, QWheelEvent
 from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, QWidget
 
 from piano_roll.colors import Colors
@@ -13,19 +13,6 @@ from piano_roll.view.viewport import PianoRollViewport
 from piano_roll.view.zoom_buttons import ZoomXButtons, ZoomYButtons
 
 
-class Corner(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setFixedSize(piano_bar_width, time_bar_height)
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-
-        painter.setBrush(Colors.BG_BLACK)
-        painter.setPen(Qt.PenStyle.NoPen)
-        painter.drawRect(0, 0, piano_bar_width, time_bar_height)
-
-
 class PianoRollFrame(QWidget):
     def __init__(self, vm: PianoRollViewModel):
         super().__init__()
@@ -34,10 +21,11 @@ class PianoRollFrame(QWidget):
         self.time_bar = TimeBar(vm, self.viewport)
         self.piano_bar = PianoBar(vm, self.viewport)
         self.notes_area = NotesView(vm, self.viewport)
-        self.scroll_bar_x = ScrollBarX(vm, self.viewport)
-        self.scroll_bar_y = ScrollBarY(vm, self.viewport)
-        self.zoom_x_buttons = ZoomXButtons()
-        self.zoom_y_buttons = ZoomYButtons()
+
+        self.scroll_bar_x = ScrollBarX(self.viewport)
+        self.scroll_bar_y = ScrollBarY(self.viewport)
+        self.zoom_x_buttons = ZoomXButtons(self.viewport)
+        self.zoom_y_buttons = ZoomYButtons(self.viewport)
 
         self._init_layout()
         self._set_bg()
@@ -67,13 +55,24 @@ class PianoRollFrame(QWidget):
         self.setPalette(palette)
 
     def _setup_shortcuts(self):
-        # Zoom in: Shift+Z
+        # Zoom in X: Shift+Z
         zoom_in_shortcut = QShortcut(QKeySequence("Shift+Z"), self)
         zoom_in_shortcut.activated.connect(self.viewport.zoom_in_x)
 
-        # Zoom out: Shift+X
+        # Zoom out X: Shift+X
         zoom_out_shortcut = QShortcut(QKeySequence("Shift+X"), self)
         zoom_out_shortcut.activated.connect(self.viewport.zoom_out_x)
+
+        # Zoom in Y: Ctrl+Shift+Z
+        zoom_in_shortcut = QShortcut(QKeySequence("Ctrl+Shift+Z"), self)
+        zoom_in_shortcut.activated.connect(self.viewport.zoom_in_y)
+
+        # Zoom out Y: Ctrl+Shift+X
+        zoom_out_shortcut = QShortcut(QKeySequence("Ctrl+Shift+X"), self)
+        zoom_out_shortcut.activated.connect(self.viewport.zoom_out_x)
+
+    def showEvent(self, event: QShowEvent):
+        self.viewport.scroll_to_middle_c()
 
     def wheelEvent(self, event: QWheelEvent):
         pixel = event.pixelDelta()
