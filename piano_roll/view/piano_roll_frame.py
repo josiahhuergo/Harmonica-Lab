@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QPainter, QShortcut, QWheelEvent
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, QWidget
 
 from piano_roll.colors import Colors
 from piano_roll.constants import piano_bar_width, time_bar_height
@@ -10,6 +10,7 @@ from piano_roll.view.scroll_bars import ScrollBarX, ScrollBarY
 from piano_roll.view.time_bar import TimeBar
 from piano_roll.view.viewmodel import PianoRollViewModel
 from piano_roll.view.viewport import PianoRollViewport
+from piano_roll.view.zoom_buttons import ZoomXButtons, ZoomYButtons
 
 
 class Corner(QWidget):
@@ -30,47 +31,40 @@ class PianoRollFrame(QWidget):
         super().__init__()
         self.viewport = PianoRollViewport(vm)
 
-        self.corner = Corner()
         self.time_bar = TimeBar(vm, self.viewport)
         self.piano_bar = PianoBar(vm, self.viewport)
         self.notes_area = NotesView(vm, self.viewport)
         self.scroll_bar_x = ScrollBarX(vm, self.viewport)
         self.scroll_bar_y = ScrollBarY(vm, self.viewport)
+        self.zoom_x_buttons = ZoomXButtons()
+        self.zoom_y_buttons = ZoomYButtons()
 
         self._init_layout()
+        self._set_bg()
         self._setup_shortcuts()
 
         self.setFixedSize(1024, 720)
 
     def _init_layout(self):
-        top_bar = QHBoxLayout()
-        top_bar.setContentsMargins(0, 0, 0, 0)
-        top_bar.setSpacing(0)
-        top_bar.addWidget(self.corner)
-        top_bar.addWidget(self.time_bar)
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setSpacing(0)
 
-        bottom_bar = QHBoxLayout()
-        bottom_bar.setContentsMargins(0, 0, 0, 0)
-        bottom_bar.setSpacing(0)
-        bottom_bar.addWidget(self.piano_bar)
-        bottom_bar.addWidget(self.notes_area)
+        grid.addWidget(self.time_bar, 0, 1)
+        grid.addWidget(self.piano_bar, 1, 0)
+        grid.addWidget(self.notes_area, 1, 1)
+        grid.addWidget(self.scroll_bar_x, 2, 1)
+        grid.addWidget(self.scroll_bar_y, 1, 2)
+        grid.addWidget(self.zoom_x_buttons, 2, 0)
+        grid.addWidget(self.zoom_y_buttons, 0, 2)
 
-        inner_area = QVBoxLayout()
-        inner_area.setContentsMargins(0, 0, 0, 0)
-        inner_area.setSpacing(0)
-        inner_area.addLayout(top_bar)
-        inner_area.addLayout(bottom_bar)
-        inner_area.addWidget(self.scroll_bar_x)
-        self.scroll_bar_x.setContentsMargins(piano_bar_width, 0, 0, 0)
+        self.setLayout(grid)
 
-        layout = QHBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        layout.addLayout(inner_area)
-        layout.addWidget(self.scroll_bar_y)
-        self.scroll_bar_y.setContentsMargins(0, time_bar_height, 0, 0)
-
-        self.setLayout(layout)
+    def _set_bg(self):
+        self.setAutoFillBackground(True)
+        palette = self.palette()
+        palette.setColor(self.backgroundRole(), Colors.BG_BLACK)
+        self.setPalette(palette)
 
     def _setup_shortcuts(self):
         # Zoom in: Shift+Z

@@ -1,3 +1,4 @@
+from PySide6.QtCore import Slot
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QScrollBar
 
@@ -23,7 +24,7 @@ class ScrollBarX(QScrollBar):
 
     def update_size(self):
         self.setRange(0, self.viewport.max_scroll_x)
-        self.setFixedWidth(self.viewport.viewport_width)
+        self.setPageStep(self.viewport.viewport_height)
 
 
 class ScrollBarY(QScrollBar):
@@ -43,4 +44,4 @@ class ScrollBarY(QScrollBar):
 
     def update_size(self):
         self.setRange(0, self.viewport.max_scroll_y)
-        self.setFixedHeight(self.viewport.viewport_height)
+        self.setPageStep(self.viewport.viewport_width)
