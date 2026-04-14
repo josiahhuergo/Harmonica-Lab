@@ -1,10 +1,7 @@
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QKeySequence, QPainter, QShortcut, QShowEvent, QWheelEvent
-from PySide6.QtWidgets import QGridLayout, QHBoxLayout, QVBoxLayout, QWidget
+from PySide6.QtGui import QKeySequence, QShortcut, QShowEvent, QWheelEvent
+from PySide6.QtWidgets import QGridLayout, QWidget
 
 from piano_roll.colors import Colors
-from piano_roll.constants import piano_bar_width, time_bar_height
-from piano_roll.view.notes import NotesView
 from piano_roll.view.piano_bar import PianoBar
 from piano_roll.view.scroll_bars import ScrollBarX, ScrollBarY
 from piano_roll.view.time_bar import TimeBar
@@ -20,7 +17,7 @@ class PianoRollFrame(QWidget):
 
         self.time_bar = TimeBar(vm, self.viewport)
         self.piano_bar = PianoBar(vm, self.viewport)
-        self.notes_area = NotesView(vm, self.viewport)
+        # self.notes_area = NotesView(vm, self.viewport)
 
         self.scroll_bar_x = ScrollBarX(self.viewport)
         self.scroll_bar_y = ScrollBarY(self.viewport)
@@ -40,7 +37,7 @@ class PianoRollFrame(QWidget):
 
         grid.addWidget(self.time_bar, 0, 1)
         grid.addWidget(self.piano_bar, 1, 0)
-        grid.addWidget(self.notes_area, 1, 1)
+        # grid.addWidget(self.notes_area, 1, 1)
         grid.addWidget(self.scroll_bar_x, 2, 1)
         grid.addWidget(self.scroll_bar_y, 1, 2)
         grid.addWidget(self.zoom_x_buttons, 2, 0)

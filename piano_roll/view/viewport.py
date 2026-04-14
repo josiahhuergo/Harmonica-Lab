@@ -14,10 +14,10 @@ class PianoRollViewport(QObject):
     zoomed = Signal()
     resized = Signal()
 
-    _DEFAULT_BEAT_WIDTH = 40
-    _DEFAULT_KEY_HEIGHT = 15
+    _DEFAULT_BEAT_WIDTH = 50
+    _DEFAULT_KEY_HEIGHT = 18
     _ZOOM_FACTOR = 1.5
-    _ZOOM_X_MIN = 0.25
+    _ZOOM_X_MIN = 0.1
     _ZOOM_X_MAX = 4.0
     _ZOOM_Y_MIN = 0.25
     _ZOOM_Y_MAX = 2.0

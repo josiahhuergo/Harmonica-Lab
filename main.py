@@ -1,5 +1,7 @@
 import sys
 
+from PySide6.QtCore import QCoreApplication, Qt
+from PySide6.QtGui import QSurfaceFormat
 from PySide6.QtWidgets import QApplication
 
 from helper import EscapeFilter
