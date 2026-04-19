@@ -1,6 +1,5 @@
 import sys
 
-from PySide6.QtCore import QCoreApplication, Qt
 from PySide6.QtGui import QSurfaceFormat
 from PySide6.QtWidgets import QApplication
 
@@ -10,6 +9,12 @@ from piano_roll.piano_roll import PianoRoll
 
 def main():
     app = QApplication(sys.argv)
+
+    # Set up OpenGL
+    format = QSurfaceFormat()
+    format.setVersion(3, 3)
+    format.setProfile(QSurfaceFormat.OpenGLContextProfile.CoreProfile)
+    QSurfaceFormat.setDefaultFormat(format)
 
     # Enables pressing Esc to quit
     esc_filter = EscapeFilter()
