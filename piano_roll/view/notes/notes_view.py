@@ -5,6 +5,7 @@ from OpenGL import GL
 import numpy as np
 
 from piano_roll.view.notes.grid_renderer import GridRenderer
+from piano_roll.view.notes.notes_renderer import NotesRenderer
 from piano_roll.view.viewmodel import PianoRollViewModel
 from piano_roll.view.viewport import PianoRollViewport
 
@@ -16,51 +17,37 @@ class NotesView(QOpenGLWidget):
         super().__init__()
         self.viewport = viewport
 
-        rng = np.random.default_rng(0)
-        self._pos = rng.uniform(0, 500, size=(self.N, 2)).astype(np.float32)
-        self._size = rng.uniform(6, 80, size=(self.N, 2)).astype(np.float32)
-
-        self._instance_data = np.empty((self.N, 4), dtype=np.float32)
+        self._grid_renderer: GridRenderer | None = None
+        self._notes_renderer: NotesRenderer | None = None
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
     def initializeGL(self):
-        # set bg color
-        GL.glClearColor(0.08, 0.08, 0.10, 1.0)
+        version = GL.glGetString(GL.GL_VERSION)
+        if version is not None:
+            print(f"[NotesView] GL_VERSION: {version.decode()}")
 
-        self.program = None  # link program here
-        self.loc_viewport = None  # uViewport location here
+        GL.glDisable(GL.GL_DEPTH_TEST)
+        GL.glDisable(GL.GL_CULL_FACE)
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
-        # Our unit quad
-        quad = np.array(
-            [
-                0.0,
-                0.0,
-                1.0,
-                0.0,
-                0.0,
-                1.0,
-                0.0,
-                1.0,
-                1.0,
-                0.0,
-                1.0,
-                1.0,
-            ],
-            dtype=np.float32,
-        )
+        self._grid_renderer = GridRenderer()
+        self._notes_renderer = NotesRenderer()
 
-        # Create and bind VAO
-        self.vao = GL.glGenVertexArrays(1)
-        GL.glBindVertexArray(self.vao)
+    def paintGL(self):
+        GL.glClearColor(0x21 / 255, 0x21 / 255, 0x21 / 255, 1.0)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
-        # Quad VBO setup
-        self.quad_VBO = GL.glGenBuffers(1)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.quad_VBO)
+        if self._grid_renderer is not None:
+            self._grid_renderer.draw()
 
-        return super().initializeGL()
+        if self._notes_renderer is not None:
+            self._notes_renderer.draw()
+
+    def resizeGL(self, w, h):
+        GL.glViewport(0, 0, w, h)
 
     def resizeEvent(self, event: QResizeEvent) -> None:
+        super().resizeEvent(event)
         self.viewport.set_viewport_size((self.size().width(), self.size().height()))
-
-        return super().resizeEvent(event)
