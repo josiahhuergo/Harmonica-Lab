@@ -15,7 +15,13 @@ class NotesView(QOpenGLWidget):
 
     def __init__(self, vm: PianoRollViewModel, viewport: PianoRollViewport):
         super().__init__()
+
+        self.vm = vm
         self.viewport = viewport
+
+        self.viewport.scrolled.connect(self.update)
+        self.viewport.resized.connect(self.update)
+        self.viewport.zoomed.connect(self.update)
 
         self._grid_renderer: GridRenderer | None = None
         self._notes_renderer: NotesRenderer | None = None
@@ -32,7 +38,7 @@ class NotesView(QOpenGLWidget):
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
-        self._grid_renderer = GridRenderer()
+        self._grid_renderer = GridRenderer(self.viewport)
         self._notes_renderer = NotesRenderer()
 
     def paintGL(self):

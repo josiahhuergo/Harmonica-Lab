@@ -21,14 +21,13 @@ class PianoRollViewport(QObject):
     _ZOOM_X_MAX = 4.0
     _ZOOM_Y_MIN = 0.25
     _ZOOM_Y_MAX = 2.0
-    _SCROLL_SPEED = 0.8
 
     def __init__(self, vm: PianoRollViewModel):
         super().__init__()
         self.vm = vm  # Only for reading
 
-        self.scroll_x: float = 0  # Scroll position (in pixels)
-        self.scroll_y: float = 0
+        self.scroll_x: int = 0  # Scroll position (in pixels)
+        self.scroll_y: int = 0
         self.zoom_x: float = 1.0  # Zoom multipliers
         self.zoom_y: float = 1.0
         self.viewport_size: tuple[int, int] = (0, 0)
@@ -50,12 +49,12 @@ class PianoRollViewport(QObject):
         return self.viewport_size[1]
 
     @property
-    def beat_width(self) -> float:
-        return self._DEFAULT_BEAT_WIDTH * self.zoom_x
+    def beat_width(self) -> int:
+        return int(self._DEFAULT_BEAT_WIDTH * self.zoom_x)
 
     @property
-    def key_height(self) -> float:
-        return self._DEFAULT_KEY_HEIGHT * self.zoom_y
+    def key_height(self) -> int:
+        return int(self._DEFAULT_KEY_HEIGHT * self.zoom_y)
 
     @property
     def max_scroll_x(self) -> int:
@@ -65,7 +64,7 @@ class PianoRollViewport(QObject):
     def max_scroll_y(self) -> int:
         return self.content_height - self.viewport_height
 
-    def set_viewport_size(self, new_size: tuple[float, float]):
+    def set_viewport_size(self, new_size: tuple[int, int]):
         self.viewport_size = new_size
         self.resized.emit()
 
@@ -88,10 +87,10 @@ class PianoRollViewport(QObject):
         self.zoomed.emit()
 
     def adjust_scroll_x(self, delta: int):
-        self.set_scroll_x(self.scroll_x - (delta * self._SCROLL_SPEED))
+        self.set_scroll_x(self.scroll_x - delta)
 
     def adjust_scroll_y(self, delta: int):
-        self.set_scroll_y(self.scroll_y - (delta * self._SCROLL_SPEED))
+        self.set_scroll_y(self.scroll_y - delta)
 
     def zoom_in_x(self):
         self.set_zoom_x(self.zoom_x * self._ZOOM_FACTOR)
@@ -107,7 +106,7 @@ class PianoRollViewport(QObject):
 
     def scroll_to_middle_c(self):
         y = (self.vm.max_pitch - 60) * self.key_height
-        self.set_scroll_y(y - self.viewport_height / 2)
+        self.set_scroll_y(y - int(self.viewport_height / 2))
 
     def _pitch_to_y(self, pitch: int) -> int:
         """Takes a pitch integer and returns the y position of the

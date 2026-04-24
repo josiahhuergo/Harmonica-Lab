@@ -29,7 +29,7 @@ class PianoRollFrame(QWidget):
         self._set_bg()
         self._setup_shortcuts()
 
-        self.setFixedSize(1024, 720)
+        self.setMinimumSize(1024, 720)
 
     def _init_layout(self):
         grid = QGridLayout()
@@ -80,8 +80,8 @@ class PianoRollFrame(QWidget):
             dx = pixel.x()
             dy = pixel.y()
         else:
-            dx = angle.x() * self.viewport.beat_width / 120
-            dy = angle.y() * self.viewport.key_height / 120
+            dx = int(angle.x() * self.viewport.beat_width / 120)
+            dy = int(angle.y() * self.viewport.key_height / 120)
 
         self.viewport.adjust_scroll_x(dx)
         self.viewport.adjust_scroll_y(dy)

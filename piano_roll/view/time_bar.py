@@ -40,7 +40,7 @@ class TimeBar(QWidget):
 
         # Set font size
         font = painter.font()
-        font.setPointSize(10)
+        font.setPointSize(7)
         painter.setFont(font)
 
         for i in range(start_beat, stop_beat):
@@ -49,7 +49,7 @@ class TimeBar(QWidget):
             line_height = time_bar_height - 5
 
             if i % 4 == 0:
-                line_height = time_bar_height * (3 / 7)
+                line_height = int(time_bar_height * (3 / 7))
 
             # Draw lines
             painter.setPen(Colors.BG_WHITE)

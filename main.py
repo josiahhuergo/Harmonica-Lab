@@ -9,6 +9,7 @@ from piano_roll.piano_roll import PianoRoll
 
 def main():
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
 
     # Set up OpenGL
     format = QSurfaceFormat()

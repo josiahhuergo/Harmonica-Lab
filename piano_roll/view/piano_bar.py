@@ -34,16 +34,16 @@ class PianoBar(QWidget):
         start_i = floor(scroll_y / key_height)
         stop_i = ceil((scroll_y + vp_height) / key_height)
 
-        x = piano_bar_width / 2
+        x = int(piano_bar_width / 2)
 
         # Set font size
         font = painter.font()
-        font.setPointSize(8)
+        font.setPointSize(7)
         painter.setFont(font)
 
         for i in range(start_i, stop_i + 1):
             pitch = max_pitch - i
-            y = key_height * i - scroll_y
+            y = int(key_height * i - scroll_y)
 
             if pitch % 12 in black_keys:
                 painter.setBrush(Colors.FG_BLACK)
@@ -62,7 +62,7 @@ class PianoBar(QWidget):
                 rect = QRect(0, y - key_height, x, key_height)
                 octave = (pitch + 1) // 12 - 1
                 painter.setPen(Colors.BG_WHITE)
-                painter.drawLine(x / 2, y, x, y)
+                painter.drawLine(int(x / 2), y, x, y)
                 painter.setPen(Colors.FG_WHITE)
                 painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, "C" + str(octave))
                 painter.setPen(Qt.PenStyle.NoPen)

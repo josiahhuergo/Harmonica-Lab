@@ -9,7 +9,7 @@ class Colors:
     FG_WHITE: QColor = QColor("#8c8c8c")
     BAR_LINE: QColor = QColor("#151515")
     BEAT_LINE: QColor = QColor("#232323")
-    NOTE_BODY: QColor = QColor("#25C8E1")
+    NOTE_BODY: QColor = QColor("#350097")
 
 
 def rgb(color: QColor) -> tuple[float, float, float]:
